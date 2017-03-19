@@ -5,6 +5,10 @@ __pycache__/
 # Jython class files
 *$py.class
 
+# Native extensions and compiled libraries
+*.so
+*.dll
+
 #IDE/editor files
 *.swp
 *~
