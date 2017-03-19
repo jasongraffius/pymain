@@ -1,0 +1,7 @@
+# CPython bytecode
+__pycache__/
+*.py[cod]
+
+# Jython class files
+*$py.class
+
