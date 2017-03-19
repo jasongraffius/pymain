@@ -5,3 +5,8 @@ __pycache__/
 # Jython class files
 *$py.class
 
+#IDE/editor files
+*.swp
+*~
+.idea/
+
