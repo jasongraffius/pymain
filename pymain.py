@@ -98,8 +98,8 @@ def pymain(main: MainFunc) -> MainFunc:
         prefixer = lambda n: '--' + n if len(n) > 1 else '-' + n
 
         if aliases is not None:
-            alias_list  = aliases.get(p.name, [])
-            alias_list.append(p.name)
+            alias_list = [p.name]
+            alias_list.extend(aliases.get(p.name, []))
 
             flags = list(map(prefixer, alias_list))
         else:
