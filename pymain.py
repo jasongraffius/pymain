@@ -8,12 +8,14 @@ import sys
 _Param = inspect.Parameter
 _Sig = inspect.Parameter
 
+MainFunc = Callable[..., None]
+
 
 def _is_empty(src: Union[_Param, _Sig], val: Union[type, None]) -> bool:
     return val == type(src).empty
 
 
-def pymain(main: Callable[..., None]) -> Callable[..., None]:
+def pymain(main: MainFunc) -> MainFunc:
     signature = inspect.signature(main)
 
     required = list()
