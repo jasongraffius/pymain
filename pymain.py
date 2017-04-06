@@ -1,5 +1,5 @@
-from typing import Callable, Union
 from functools import wraps
+from typing import Callable, Union, List, Mapping
 
 import argparse
 import inspect
@@ -18,7 +18,8 @@ def _is_empty(src: Union[_Param, _Sig], val: Union[type, None]) -> bool:
     return val == type(src).empty
 
 
-def alias(original: str, new: str) -> Callable[[MainFunc], MainFunc]:
+def alias(original: Union[str, Mapping[str, Union[str, List[str]]]],
+          new: str = None) -> Callable[[MainFunc], MainFunc]:
     """Allows aliasing options, useful for short names.
 
     Used as a decorator, this function returns a function decorator which
@@ -34,14 +35,38 @@ def alias(original: str, new: str) -> Callable[[MainFunc], MainFunc]:
             attrs = dict()
             setattr(main, ALIAS_ATTR, attrs)
 
-        # Retrieve the list of aliases, or create a new one
-        try:
-            aliases = attrs[original]
-        except KeyError:
-            aliases = []
-            attrs[original] = aliases
+        if new is None:
+            # Parameter 'new' wasn't provided, so assume the dict form is given
+            try:
+                # Update attrs for each entry in aliases
+                for k, v in original.items():
+                    try:
+                        aliases = attrs[k]
+                    except KeyError:
+                        aliases = []
+                        attrs[k] = aliases
 
-        aliases.append(new)
+                    if isinstance(v, List):
+                        aliases.extend(v)
+                    else:
+                        aliases.append(v)
+            except TypeError:
+                import sys
+                print( "The one-parameter version of alias needs a dictionary",
+                       "of alias mappings (original -> alias or [aliases]",
+                       file=sys.stderr)
+                raise
+        else:
+            # Retrieve the list of aliases, or create a new one
+            try:
+                aliases = attrs[original]
+            except KeyError:
+                aliases = []
+                attrs[original] = aliases
+
+            # Update with new alias
+            aliases.append(new)
+
         return main
 
     return decorator
