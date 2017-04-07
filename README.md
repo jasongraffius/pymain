@@ -44,12 +44,12 @@ if __name__ == '__main__':
 
 Command line:
 ``` bash
-~ $ python -m main.py 4 6
+~ $ python main.py 4 6
 10
 ```
 
 ``` bash
-~ $ python -m main.py 1 2 --message "Hello, World!"
+~ $ python main.py 1 2 --message "Hello, World!"
 3
 Hello, World!
 ```
@@ -71,13 +71,13 @@ if __name__ == '__main__':
 
 Command line:
 ``` bash
-~ $ python -m alias.py 5 -y 1
+~ $ python alias.py 5 -y 1
 6.0
 4.0
 ```
 
 ```bash
-~ $ python -m alias.py 10 --opt1 5
+~ $ python alias.py 10 --opt1 5
 15.0
 8.0
 ```
