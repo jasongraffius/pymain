@@ -1,6 +1,6 @@
 # Pymain
 
-Pymain - simplified main
+Pymain - Simplified main
 
 Pymain is a decorator and related tools to simplify your `main` function(s).
 It is intended to be more simple to use and understand than `argparse` and
