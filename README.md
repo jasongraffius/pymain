@@ -34,9 +34,9 @@ from pymain import pymain
 
 @pymain
 def main(first: int, second: int, message: str = None):
-	print(first + second)
+    print(first + second)
     if message is not None:
-    	print(message)
+        print(message)
 ```
 
 Command line:
@@ -59,7 +59,7 @@ from pymain import pymain, alias
 @pymain
 @alias({"opt1": "x", "opt2": "y"})
 def foo(value: float, opt1: float = 1.0, opt2: float = 2.0):
-	print(value + opt1)
+    print(value + opt1)
     print(value - opt2)
 ```
 
