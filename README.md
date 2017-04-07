@@ -25,3 +25,29 @@ Pymain uses the type annotations to determine what types to expect. For short
 options or aliases, you can add an `@alias` decorator after the `@pymain`
 decorator describing the alias (either a single alias or a dictionary of
 multiple)
+
+### Examples
+
+main\.py:
+``` python
+from pymain import pymain
+
+@pymain
+def main(first: int, second: int, message: str = None):
+	print(first + second)
+    if message is not None:
+    	print(message)
+```
+
+Command line:
+``` bash
+~ $ python -m main.py 4 6
+10
+```
+
+``` bash
+~ $ python -m main.py 1 2 --message "Hello, World!"
+3
+Hello, World!
+```
+---
