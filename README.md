@@ -51,3 +51,27 @@ Command line:
 Hello, World!
 ```
 ---
+
+alias\.py:
+``` python
+from pymain import pymain, alias
+
+@pymain
+@alias({"opt1": "x", "opt2": "y"})
+def foo(value: float, opt1: float = 1.0, opt2: float = 2.0):
+	print(value + opt1)
+    print(value - opt2)
+```
+
+Command line:
+``` bash
+~ $ python -m alias.py 5 -y 1
+6.0
+4.0
+```
+
+```bash
+~ $ python -m alias.py 10 --opt1 5
+15.0
+8.0
+```
