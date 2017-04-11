@@ -90,11 +90,13 @@ def pymain(main: MainFunc) -> MainFunc:
             optional.append(p)
 
     parser = argparse.ArgumentParser()
-    aliases = getattr(main, ALIAS_ATTR, None)  # type: dict
+    aliases = getattr(main, ALIAS_ATTR, None)
 
     for p in required:
         parser.add_argument(p.name, type=p.annotation)
-    for p in extended + optional:
+    for p in extended:
+        parser.add_argument(p.name, default=p.default, type=p.annotation)
+    for p in optional:
         prefixer = lambda n: '--' + n if len(n) > 1 else '-' + n
 
         if aliases is not None:
