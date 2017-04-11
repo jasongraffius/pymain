@@ -28,12 +28,36 @@ multiple)
 
 ### Examples
 
-main\.py:
+optional.py:
 ``` python
 from pymain import pymain
 
 @pymain
-def main(first: int, second: int, message: str = None):
+def main(a: float, b: float, c: str = None):
+    print(a / b)
+    if c is not None:
+        print(c)
+```
+
+Command line:
+
+``` bash
+~ $ python optional.py 4 2
+2.0
+```
+
+``` bash
+~ $ python optional.py 9 2 message
+4.5
+message
+```
+
+keyword\.py:
+``` python
+from pymain import pymain
+
+@pymain
+def main(first: int, second: int, *, message: str = None):
     print(first + second)
     if message is not None:
         print(message)
@@ -61,7 +85,7 @@ from pymain import pymain, alias
 
 @pymain
 @alias({"opt1": "x", "opt2": "y"})
-def foo(value: float, opt1: float = 1.0, opt2: float = 2.0):
+def foo(value: float, *, opt1: float = 1.0, opt2: float = 2.0):
     print(value + opt1)
     print(value - opt2)
 
@@ -71,13 +95,19 @@ if __name__ == '__main__':
 
 Command line:
 ``` bash
-~ $ python alias.py 5 -y 1
+~ $ python alias.py 2
+3.0
+0.0
+```
+
+``` bash
+~ $ python alias.py 5 -x 1 -y 1
 6.0
 4.0
 ```
 
 ```bash
-~ $ python alias.py 10 --opt1 5
+~ $ python alias.py 10 --opt1 5 --opt2 2
 15.0
 8.0
 ```
