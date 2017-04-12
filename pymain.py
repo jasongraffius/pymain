@@ -98,7 +98,8 @@ def pymain(main: MainFunc = None, *,
         for p in required:
             parser.add_argument(p.name, type=p.annotation)
         for p in extended:
-            parser.add_argument(p.name, default=p.default, type=p.annotation)
+            parser.add_argument(p.name, default=p.default, nargs='?',
+                                type=p.annotation)
         for p in optional:
             prefixer = lambda n: '--' + n if len(n) > 1 else '-' + n
 
