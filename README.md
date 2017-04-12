@@ -37,9 +37,6 @@ def main(a: float, b: float, c: str = None):
     print(a / b)
     if c is not None:
         print(c)
-
-if __name__ == '__main__':
-    main()
 ```
 
 Command line:
@@ -64,9 +61,6 @@ def main(first: int, second: int, *, message: str = None):
     print(first + second)
     if message is not None:
         print(message)
-
-if __name__ == '__main__':
-    main()
 ```
 
 Command line:
@@ -91,9 +85,6 @@ from pymain import pymain, alias
 def foo(value: float, *, opt1: float = 1.0, opt2: float = 2.0):
     print(value + opt1)
     print(value - opt2)
-
-if __name__ == '__main__':
-    foo()
 ```
 
 Command line:
