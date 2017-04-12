@@ -72,48 +72,62 @@ def alias(original: Union[str, Mapping[str, Union[str, List[str]]]],
     return decorator
 
 
-def pymain(main: MainFunc) -> MainFunc:
-    signature = inspect.signature(main)
+def pymain(main: MainFunc = None, *,
+           auto = None) -> Union[MainFunc, Callable[[MainFunc], MainFunc]]:
 
-    required = list()
-    extended = list()
-    optional = list()
+    def wrap(main: MainFunc) -> MainFunc:
+        signature = inspect.signature(main)
 
-    params = signature.parameters.values()
-    for p in params:
-        if p.kind == _Param.POSITIONAL_OR_KEYWORD:
-            if _is_empty(p, p.default):
-                required.append(p)
+        required = list()
+        extended = list()
+        optional = list()
+
+        params = signature.parameters.values()
+        for p in params:
+            if p.kind == _Param.POSITIONAL_OR_KEYWORD:
+                if _is_empty(p, p.default):
+                    required.append(p)
+                else:
+                    extended.append(p)
+            elif p.kind == _Param.KEYWORD_ONLY:
+                optional.append(p)
+
+        parser = argparse.ArgumentParser()
+        aliases = getattr(main, ALIAS_ATTR, None)
+
+        for p in required:
+            parser.add_argument(p.name, type=p.annotation)
+        for p in extended:
+            parser.add_argument(p.name, default=p.default, type=p.annotation)
+        for p in optional:
+            prefixer = lambda n: '--' + n if len(n) > 1 else '-' + n
+
+            if aliases is not None:
+                alias_list = [p.name]
+                alias_list.extend(aliases.get(p.name, []))
+
+                flags = list(map(prefixer, alias_list))
             else:
-                extended.append(p)
-        elif p.kind == _Param.KEYWORD_ONLY:
-            optional.append(p)
+                flags = [prefixer(p.name)]
 
-    parser = argparse.ArgumentParser()
-    aliases = getattr(main, ALIAS_ATTR, None)
+            parser.add_argument(*flags, default=p.default, type=p.annotation)
 
-    for p in required:
-        parser.add_argument(p.name, type=p.annotation)
-    for p in extended:
-        parser.add_argument(p.name, default=p.default, type=p.annotation)
-    for p in optional:
-        prefixer = lambda n: '--' + n if len(n) > 1 else '-' + n
+        if auto is None or auto:
+            if inspect.getmodule(main).__name__ == '__main__':
+                main(**vars(parser.parse_args()))
 
-        if aliases is not None:
-            alias_list = [p.name]
-            alias_list.extend(aliases.get(p.name, []))
-
-            flags = list(map(prefixer, alias_list))
+            return main
         else:
-            flags = [prefixer(p.name)]
+            @wraps(main)
+            def wrapper(*args, **kwargs):
+                if args or kwargs:
+                    main(*args, **kwargs)
+                else:
+                    main(**vars(parser.parse_args()))
 
-        parser.add_argument(*flags, default=p.default, type=p.annotation)
+            return wrapper
 
-    @wraps(main)
-    def wrapper(*args, **kwargs):
-        if args or kwargs:
-            main(*args, **kwargs)
-        else:
-            main(**vars(parser.parse_args()))
-
-    return wrapper
+    if main is None:
+        return wrap
+    else:
+        return wrap(main)
