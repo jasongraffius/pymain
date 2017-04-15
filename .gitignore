@@ -9,8 +9,12 @@ __pycache__/
 *.so
 *.dll
 
+# Distribution information
+*.egg-info/
+build/
+dist/
+
 #IDE/editor files
 *.swp
 *~
 .idea/
-
