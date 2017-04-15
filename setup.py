@@ -5,7 +5,7 @@ with open(os.path.join("pymain", "version.py"), "r") as fp:
     __version__ = None
     exec(fp.read())  # Update version from version.py
 
-with open("README.md", "r") as fp:
+with open("README.rst", "r") as fp:
     readme_contents = fp.read().strip()
 
 setup(
