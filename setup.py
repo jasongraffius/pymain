@@ -19,9 +19,12 @@ setup(
     long_description=readme_contents,
     classifiers=[
         "Development Status :: 3 - Alpha",
+        "Environment :: Console",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3 :: Only",
+        "Topic :: Software Development :: User Interfaces",
         "Topic :: Utilities",
     ]
 )
