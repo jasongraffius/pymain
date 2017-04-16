@@ -1,4 +1,5 @@
 from functools import wraps
+from itertools import chain
 from typing import Callable, Union, List, Mapping
 
 import argparse
@@ -102,6 +103,7 @@ def pymain(main: MainFunc = None, *,
         required = list()
         extended = list()
         optional = list()
+        varargs = None
 
         params = signature.parameters.values()
         for p in params:
@@ -112,6 +114,8 @@ def pymain(main: MainFunc = None, *,
                     extended.append(p)
             elif p.kind == _Param.KEYWORD_ONLY:
                 optional.append(p)
+            elif p.kind == _Param.VAR_POSITIONAL:
+                varargs = p
 
         parser = argparse.ArgumentParser()
         aliases = getattr(main, ALIAS_ATTR, None)
@@ -120,6 +124,10 @@ def pymain(main: MainFunc = None, *,
             parser.add_argument(p.name, type=p.annotation)
         for p in extended:
             parser.add_argument(p.name, default=p.default, nargs='?',
+                                type=p.annotation)
+        if varargs is not None:
+            p = varargs
+            parser.add_argument(p.name, nargs="*", default=[],
                                 type=p.annotation)
         for p in optional:
             prefixer = lambda n: '--' + n if len(n) > 1 else '-' + n
@@ -139,7 +147,16 @@ def pymain(main: MainFunc = None, *,
             if args or kwargs:
                 main(*args, **kwargs)
             else:
-                main(**vars(parser.parse_args()))
+                results = vars(parser.parse_args())
+                positional = chain(required, extended)
+
+                args = [results[p.name] for p in positional]
+                if varargs is not None:
+                    args.extend(results[varargs.name])
+
+                kwargs = {p.name: results[p.name] for p in optional}
+
+                main(*args, **kwargs)
 
         if auto is None or auto:
             if inspect.getmodule(main).__name__ == '__main__':
