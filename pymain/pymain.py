@@ -100,11 +100,13 @@ def pymain(main: MainFunc = None, *,
     def wrap(main: MainFunc) -> MainFunc:
         signature = inspect.signature(main)
 
+        # Track the various forms of parameters
         required = list()
         extended = list()
         optional = list()
         varargs = None
 
+        # Split parameters into each list
         params = signature.parameters.values()
         for p in params:
             if p.kind == _Param.POSITIONAL_OR_KEYWORD:
@@ -117,9 +119,13 @@ def pymain(main: MainFunc = None, *,
             elif p.kind == _Param.VAR_POSITIONAL:
                 varargs = p
 
+        # Start builing an argument parser
         parser = argparse.ArgumentParser()
+
+        # Check for aliases
         aliases = getattr(main, ALIAS_ATTR, None)
 
+        # Add each form of parameter to the argument parser
         for p in required:
             parser.add_argument(p.name, type=p.annotation)
         for p in extended:
@@ -142,28 +148,35 @@ def pymain(main: MainFunc = None, *,
 
             parser.add_argument(*flags, default=p.default, type=p.annotation)
 
+        # Produce the returned wrapper
         @wraps(main)
         def wrapper(*args, **kwargs):
             if args or kwargs:
                 main(*args, **kwargs)
             else:
+                # Main was called with no arguments, parse sys.arv
                 results = vars(parser.parse_args())
                 positional = chain(required, extended)
 
+                # Build the list of positional arguments, in order
                 args = [results[p.name] for p in positional]
                 if varargs is not None:
                     args.extend(results[varargs.name])
 
+                # Build the dictionary of keyword arguments, in order
                 kwargs = {p.name: results[p.name] for p in optional}
 
+                # Call original main with the supplied arguments
                 main(*args, **kwargs)
 
+        # Automatically call main if it is defined in __main__
         if auto is None or auto:
             if inspect.getmodule(main).__name__ == '__main__':
                 wrapper()
 
         return wrapper
 
+    # Determine if called as a bare decorator or with arguments
     if main is None:
         return wrap
     else:
