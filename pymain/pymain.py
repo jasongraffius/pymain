@@ -22,9 +22,14 @@ def alias(original: Union[str, Mapping[str, Union[str, List[str]]]],
           new: str = None) -> Callable[[MainFunc], MainFunc]:
     """Allows aliasing options, useful for short names.
 
-    Used as a decorator, this function returns a function decorator which
-    returns a wrapper, intended to be used for the main function. It adds
-    an alias map to main, to be used in argument parsing.
+    Used as a decorator, this function returns a function decorator intended to
+    be used for the main function. It adds an alias map to main, to be used in
+    argument parsing.
+
+    :param original: Either a parameter to alias, or a mapping of aliases.
+    :param new: If original is supplied, the aliased form.
+
+    :returns: Decorator that decorates a main function.
     """
 
     def decorator(main: MainFunc) -> MainFunc:
@@ -74,6 +79,22 @@ def alias(original: Union[str, Mapping[str, Union[str, List[str]]]],
 
 def pymain(main: MainFunc = None, *,
            auto = None) -> Union[MainFunc, Callable[[MainFunc], MainFunc]]:
+    """Wrap a main function
+
+    Intended to be used as a decorator, this function will attempt to read
+    the signature of the provided main function, and build a parser that can
+    supply arguments to that function from command line arguments (sys.argv).
+
+    This decorator can be used as ``@pymain`` (bare) or ``@pymain(param=value)``
+    (with arguments). In the first form, pymain will detect if the defining
+    module is ``'__main__'``, and if it is, call it before returning. To prevent
+    that behavior, use the second form, setting ``auto`` to ``False``.
+
+    :param main: The main function to wrap.
+    :param auto: Whether to automatically call main or not (when not imported).
+
+    :returns: Wrapper around main. Call with no arguments for sys.argv parsing.
+    """
 
     def wrap(main: MainFunc) -> MainFunc:
         signature = inspect.signature(main)
