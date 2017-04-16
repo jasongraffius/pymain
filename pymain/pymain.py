@@ -113,20 +113,18 @@ def pymain(main: MainFunc = None, *,
 
             parser.add_argument(*flags, default=p.default, type=p.annotation)
 
-        if auto is None or auto:
-            if inspect.getmodule(main).__name__ == '__main__':
+        @wraps(main)
+        def wrapper(*args, **kwargs):
+            if args or kwargs:
+                main(*args, **kwargs)
+            else:
                 main(**vars(parser.parse_args()))
 
-            return main
-        else:
-            @wraps(main)
-            def wrapper(*args, **kwargs):
-                if args or kwargs:
-                    main(*args, **kwargs)
-                else:
-                    main(**vars(parser.parse_args()))
+        if auto is None or auto:
+            if inspect.getmodule(main).__name__ == '__main__':
+                wrapper()
 
-            return wrapper
+        return wrapper
 
     if main is None:
         return wrap
