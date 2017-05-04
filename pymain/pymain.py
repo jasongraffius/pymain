@@ -1,6 +1,6 @@
 from functools import wraps
 from itertools import chain
-from typing import Callable, Union, List, Mapping
+from typing import Callable, List, Mapping, TypeVar, Union
 
 import argparse
 import inspect
@@ -10,9 +10,10 @@ import inspect
 ALIAS_ATTR = '_!!_' + __name__ + '_aliases'
 
 _Param = inspect.Parameter
-_Sig = inspect.Parameter
+_Sig = inspect.Signature
 
 MainFunc = Callable[..., None]
+Main = TypeVar('Main', bound=MainFunc)
 
 
 def _is_empty(src: Union[_Param, _Sig], val: Union[type, None]) -> bool:
@@ -58,9 +59,9 @@ def alias(original: Union[str, Mapping[str, Union[str, List[str]]]],
                         aliases.append(v)
             except TypeError:
                 import sys
-                print( "The one-parameter version of alias needs a dictionary",
-                       "of alias mappings (original -> alias or [aliases]",
-                       file=sys.stderr)
+                print("The one-parameter version of alias needs a dictionary",
+                      "of alias mappings (original -> alias or [aliases]",
+                      file=sys.stderr)
                 raise
         else:
             # Retrieve the list of aliases, or create a new one
@@ -97,8 +98,8 @@ def pymain(main: MainFunc = None, *,
     :returns: Wrapper around main. Call with no arguments for sys.argv parsing.
     """
 
-    def wrap(main: MainFunc) -> MainFunc:
-        signature = inspect.signature(main)
+    def wrap(m: MainFunc) -> MainFunc:
+        signature = inspect.signature(m)
 
         # Track the various forms of parameters
         required = list()
@@ -123,7 +124,7 @@ def pymain(main: MainFunc = None, *,
         parser = argparse.ArgumentParser()
 
         # Check for aliases
-        aliases = getattr(main, ALIAS_ATTR, None)
+        defined_aliases = getattr(m, ALIAS_ATTR, None)
 
         # Add each form of parameter to the argument parser
         for p in required:
@@ -136,11 +137,12 @@ def pymain(main: MainFunc = None, *,
             parser.add_argument(p.name, nargs="*", default=[],
                                 type=p.annotation)
         for p in optional:
-            prefixer = lambda n: '--' + n if len(n) > 1 else '-' + n
+            def prefixer(n: str) -> str:
+                return '--' + n if len(n) > 1 else '-' + n
 
-            if aliases is not None:
+            if defined_aliases is not None:
                 alias_list = [p.name]
-                alias_list.extend(aliases.get(p.name, []))
+                alias_list.extend(defined_aliases.get(p.name, []))
 
                 flags = list(map(prefixer, alias_list))
             else:
@@ -149,29 +151,29 @@ def pymain(main: MainFunc = None, *,
             parser.add_argument(*flags, default=p.default, type=p.annotation)
 
         # Produce the returned wrapper
-        @wraps(main)
+        @wraps(m)
         def wrapper(*args, **kwargs):
             if args or kwargs:
-                main(*args, **kwargs)
+                m(*args, **kwargs)
             else:
                 # Main was called with no arguments, parse sys.arv
                 results = vars(parser.parse_args())
                 positional = chain(required, extended)
 
                 # Build the list of positional arguments, in order
-                args = [results[p.name] for p in positional]
+                args = [results[param.name] for param in positional]
                 if varargs is not None:
                     args.extend(results[varargs.name])
 
                 # Build the dictionary of keyword arguments, in order
-                kwargs = {p.name: results[p.name] for p in optional}
+                kwargs = {param.name: results[param.name] for param in optional}
 
                 # Call original main with the supplied arguments
-                main(*args, **kwargs)
+                m(*args, **kwargs)
 
         # Automatically call main if it is defined in __main__
         if auto is None or auto:
-            if inspect.getmodule(main).__name__ == '__main__':
+            if inspect.getmodule(m).__name__ == '__main__':
                 wrapper()
 
         return wrapper
