@@ -22,9 +22,9 @@ Usage
 Import and use the ``@pymain`` decorator before your main function that has type
 annotations for the parameters. If you don't need any short options or aliases,
 that is all you need to do. Pymain will detect whether the defining module is
-run as a script (and therefore ``__name__ == __main__``) or if it is being
+run as a script (and therefore ``__name__ == "__main__"``) or if it is being
 imported. If it is run as a script, then main will be called and given arguments
-based on sys.argv.
+based on ``sys.argv``.
 
 Pymain uses the type annotations to determine what types to expect. For short
 options or aliases, you can add an ``@alias`` decorator after the ``@pymain``
@@ -58,6 +58,8 @@ Command line:
     ~ $ python optional.py 9 2 message
     4.5
     message
+
+--------------
 
 keyword.py:
 
