@@ -161,6 +161,8 @@ def pymain(main: Main = None, *,
         @wraps(m)
         def wrapper(*args, **kwargs):
             if args or kwargs:
+                # Currently does not support calling a main function with no
+                # arguments or only default arguments.
                 m(*args, **kwargs)
             else:
                 # Main was called with no arguments, parse sys.arv
