@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from setuptools import setup
 import os.path
 
@@ -13,6 +15,7 @@ setup(
     version=__version__,
     author="Jason Graffius",
     description="A simplified interface for your main function.",
+    url="https://github.com/jasongraffius/pymain",
     license="MIT",
     keywords="main arguments option argparse",
     packages=["pymain"],
