@@ -9,14 +9,14 @@ import inspect
 # Additionally, a syntactically invalid attribute string is used ("!!")
 ALIAS_ATTR = '_!!_' + __name__ + '_aliases'
 
-_Param = inspect.Parameter
-_Sig = inspect.Signature
+Param = inspect.Parameter
+Sig = inspect.Signature
 
 MainFunc = Callable[..., None]
 Main = TypeVar('Main', bound=MainFunc)
 
 
-def _is_empty(src: Union[_Param, _Sig], val: Union[type, None]) -> bool:
+def is_empty(src: Union[Param, Sig], val: Union[type, None]) -> bool:
     return val == type(src).empty
 
 
@@ -112,14 +112,14 @@ def pymain(main: Main = None, *,
         # Split parameters into each list
         params = signature.parameters.values()
         for p in params:
-            if p.kind == _Param.POSITIONAL_OR_KEYWORD:
-                if _is_empty(p, p.default):
+            if p.kind == Param.POSITIONAL_OR_KEYWORD:
+                if is_empty(p, p.default):
                     required.append(p)
                 else:
                     extended.append(p)
-            elif p.kind == _Param.KEYWORD_ONLY:
+            elif p.kind == Param.KEYWORD_ONLY:
                 optional.append(p)
-            elif p.kind == _Param.VAR_POSITIONAL:
+            elif p.kind == Param.VAR_POSITIONAL:
                 varargs = p
 
         # Start builing an argument parser
