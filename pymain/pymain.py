@@ -135,14 +135,17 @@ def pymain(main: Main = None, *,
 
         # Add each form of parameter to the argument parser
         for p in required:
-            parser.add_argument(p.name, type=p.annotation)
+            t = p.annotation if not is_empty(p, p.annotation) else str
+            parser.add_argument(p.name, type=t)
         for p in extended:
+            t = p.annotation if not is_empty(p, p.annotation) else str
             parser.add_argument(p.name, default=p.default, nargs='?',
-                                type=p.annotation)
+                                type=t)
         if varargs is not None:
             p = varargs
+            t = p.annotation if not is_empty(p, p.annotation) else str
             parser.add_argument(p.name, nargs="*", default=[],
-                                type=p.annotation)
+                                type=t)
         for p in optional:
             def prefixer(n: str) -> str:
                 return '--' + n if len(n) > 1 else '-' + n
@@ -155,7 +158,8 @@ def pymain(main: Main = None, *,
             else:
                 flags = [prefixer(p.name)]
 
-            parser.add_argument(*flags, default=p.default, type=p.annotation)
+            t = p.annotation if not is_empty(p, p.annotation) else str
+            parser.add_argument(*flags, default=p.default, type=t)
 
         # Produce the returned wrapper
         @wraps(m)
