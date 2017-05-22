@@ -81,7 +81,8 @@ def alias(original: Union[str, Mapping[str, Union[str, List[str]]]],
 
 def pymain(main: Main = None, *,
            aliases: Mapping[str, str] = None,
-           auto: bool = None) -> Union[Main, Callable[[Main], Main]]:
+           auto: bool = None,
+           use_help: bool = True) -> Union[Main, Callable[[Main], Main]]:
     """Wrap a main function
 
     Intended to be used as a decorator, this function will attempt to read
@@ -94,8 +95,9 @@ def pymain(main: Main = None, *,
     that behavior, use the second form, setting ``auto`` to ``False``.
 
     :param main: The main function to wrap.
-    :param aliases: Aliases to apply (see ``alias`` function)
+    :param aliases: Aliases to apply (see ``alias`` function).
     :param auto: Whether to automatically call main or not (when not imported).
+    :param use_help: When ``True``, automatically adds a help parameter ``-h``.
 
     :returns: Wrapper around main. Call with no arguments for sys.argv parsing.
     """
@@ -123,7 +125,7 @@ def pymain(main: Main = None, *,
                 varargs = p
 
         # Start builing an argument parser
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(add_help=use_help)
 
         # Update with passed-in aliases, if provided
         if aliases is not None:
