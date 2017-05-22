@@ -14,7 +14,9 @@ The basic idea of ``pymain`` is that your main function (though it doesn't need
 to be called "main"), and therefore your script or application itself, probably
 takes parameters and keyword arguments in the form of command line arguments.
 Since that interface works very similar to calling a python function, ``pymain``
-translates between those interfaces for you.
+translates between those interfaces for you. In addition, so many scripts with
+entry points include the ``if __name__ == '__main__':`` boilerplate, and pymain
+aims to eliminate that.
 
 Usage
 -----
@@ -24,12 +26,17 @@ annotations for the parameters. If you don't need any short options or aliases,
 that is all you need to do. Pymain will detect whether the defining module is
 run as a script (and therefore ``__name__ == "__main__"``) or if it is being
 imported. If it is run as a script, then main will be called and given arguments
-based on ``sys.argv``.
+based on ``sys.argv``. If it is imported, then pymain will not run the function
+as a main function and it can still be called normally.
 
 Pymain uses the type annotations to determine what types to expect. For short
 options or aliases, you can add an ``@alias`` decorator after the ``@pymain``
 decorator describing the alias (either a single alias or a dictionary of
 multiple)
+
+All arguments that are greater than one character in length are long options
+(e.g. --arg), and arguments that have a single character are short options
+(e.g. -a). Aliases follow the same rules.
 
 Examples
 --------
