@@ -122,5 +122,21 @@ class TestAlias(ScriptTestCase):
         )
 
 
+class TestNoAuto(ScriptTestCase):
+    script = script_name('script_no_auto.py')
+
+    def test_no_auto(self):
+        self.run_test_case(
+            expect(0, '', ''),
+            ['55'],
+        )
+
+    def test_no_auto_bad_args(self):
+        self.run_test_case(
+            expect(0, '', ''),
+            ['abc', 'xyz', '???']
+        )
+
+
 suite = TestSuite()
-suite.addTests((TestOptional(), TestKeyword(), TestAlias()))
+suite.addTests((TestOptional(), TestKeyword(), TestAlias(), TestNoAuto()))
