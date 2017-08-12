@@ -7,8 +7,8 @@ import os.path as path
 def call_script(*args):
     args = ('python',) + args
     p = proc.Popen(args, stdout=proc.PIPE, stderr=proc.PIPE, shell=True)
-    stdout, stderr = p.communicate()
-    stdout, stderr = map(lambda x: x.decode('utf-8').strip(), (stdout, stderr))
+    stdout, stderr = map(lambda x: x.decode('utf-8').strip(),
+                         p.communicate())
 
     return p.returncode, stdout, stderr
 
