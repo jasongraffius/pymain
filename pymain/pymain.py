@@ -60,7 +60,7 @@ def alias(original: Union[str, Mapping[str, Union[str, List[str]]]],
             except TypeError:
                 import sys
                 print("The one-parameter version of alias needs a dictionary",
-                      "of alias mappings (original -> alias or [aliases]",
+                      "of alias mappings (original -> alias or [aliases])",
                       file=sys.stderr)
                 raise
         else:
