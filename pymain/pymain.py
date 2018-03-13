@@ -1,4 +1,3 @@
-from functools import wraps
 from itertools import chain
 from typing import Callable, List, Mapping, TypeVar, Union
 
@@ -99,7 +98,7 @@ def pymain(main: Main = None, *,
     :param auto: Whether to automatically call main or not (when not imported).
     :param use_help: When ``True``, automatically adds a help parameter ``-h``.
 
-    :returns: Wrapper around main. Call with no arguments for sys.argv parsing.
+    :returns: Wrapper around main. Call ``main.as_main()`` for sys.argv parsing.
     """
 
     def wrap(m: MainFunc) -> MainFunc:
@@ -164,34 +163,30 @@ def pymain(main: Main = None, *,
             parser.add_argument(*flags, default=p.default, type=t)
 
         # Produce the returned wrapper
-        @wraps(m)
-        def wrapper(*args, **kwargs):
-            if args or kwargs:
-                # Currently does not support calling a main function with no
-                # arguments or only default arguments.
-                m(*args, **kwargs)
-            else:
-                # Main was called with no arguments, parse sys.arv
-                results = vars(parser.parse_args())
-                positional = chain(required, extended)
+        def caller():
+            # Main was called with no arguments, parse sys.arv
+            results = vars(parser.parse_args())
+            positional = chain(required, extended)
 
-                # Build the list of positional arguments, in order
-                args = [results[param.name] for param in positional]
-                if varargs is not None:
-                    args.extend(results[varargs.name])
+            # Build the list of positional arguments, in order
+            args = [results[param.name] for param in positional]
+            if varargs is not None:
+                args.extend(results[varargs.name])
 
-                # Build the dictionary of keyword arguments, in order
-                kwargs = {param.name: results[param.name] for param in optional}
+            # Build the dictionary of keyword arguments, in order
+            kwargs = {param.name: results[param.name] for param in optional}
 
-                # Call original main with the supplied arguments
-                m(*args, **kwargs)
+            # Call original main with the supplied arguments
+            m(*args, **kwargs)
+
+        m.as_main = caller
 
         # Automatically call main if it is defined in __main__
         if auto is None or auto:
             if inspect.getmodule(m).__name__ == '__main__':
-                wrapper()
+                caller()
 
-        return wrapper
+        return m
 
     # Determine if called as a bare decorator or with arguments
     if main is None:

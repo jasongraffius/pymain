@@ -138,5 +138,29 @@ class TestNoAuto(ScriptTestCase):
         )
 
 
+class TestExplicitCall(ScriptTestCase):
+    script = script_name('script_explicit_call.py')
+
+    def test_correct_call(self):
+        self.run_test_case(
+            expect(0, 'Success was called.', ''),
+            ['0'],
+        )
+        self.run_test_case(
+            expect(1, 'Success was called.', ''),
+            ['1'],
+        )
+
+    def test_bad_args(self):
+        self.run_test_case(
+            expect_fail,
+            ['0', '0']
+        )
+        self.run_test_case(
+            expect_fail,
+            ['x']
+        )
+
+
 suite = TestSuite()
 suite.addTests((TestOptional(), TestKeyword(), TestAlias(), TestNoAuto()))
